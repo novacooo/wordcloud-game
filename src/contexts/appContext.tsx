@@ -5,8 +5,8 @@ interface IAppContext {
   nickname?: string;
   score?: number;
   setIsLoggedIn: (isLoggedIn: boolean) => void;
-  setNickname: (nickname: string) => void;
-  setScore: (number: number) => void;
+  setNickname: (nickname: string | undefined) => void;
+  setScore: (number: number | undefined) => void;
 }
 
 interface AppContextProviderProps {
