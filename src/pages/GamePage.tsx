@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import routes from 'common/routes';
 import Button from 'components/Button';
 import Text from 'components/Text';
 import styled from 'styled-components';
 import Heading from 'components/Heading';
+import { useAppContext } from 'contexts/appContext';
 
 const BoardWrapper = styled.div`
   display: flex;
@@ -29,11 +30,13 @@ const WordHeader = styled(Text)`
 `;
 
 const GamePage = () => {
+  const { isLoggedIn } = useAppContext();
   const navigate = useNavigate();
   const [isChecked, setIsChecked] = useState<boolean>(true);
 
   return (
     <>
+      {!isLoggedIn && <Navigate to={routes.login} />}
       <Heading>Choose correct words!</Heading>
       <BoardWrapper>
         <WordHeader>Select animals</WordHeader>

@@ -2,6 +2,7 @@ import styled, { ThemeProvider } from 'styled-components';
 import GlobalStyle from 'theme/GlobalStyle';
 import theme from 'theme/theme';
 import Header from 'components/Header';
+import { AppContextProvider } from 'contexts/appContext';
 
 interface MainTemplateProps {
   children: React.ReactNode;
@@ -17,13 +18,15 @@ const StyledWrapper = styled.div`
 
 const MainTemplate = ({ children }: MainTemplateProps) => {
   return (
-    <ThemeProvider theme={theme}>
-      <GlobalStyle />
-      <StyledWrapper>
-        <Header>Wordcloud game</Header>
-        {children}
-      </StyledWrapper>
-    </ThemeProvider>
+    <AppContextProvider>
+      <ThemeProvider theme={theme}>
+        <GlobalStyle />
+        <StyledWrapper>
+          <Header>Wordcloud game</Header>
+          {children}
+        </StyledWrapper>
+      </ThemeProvider>
+    </AppContextProvider>
   );
 };
 
