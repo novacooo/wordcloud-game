@@ -3,6 +3,7 @@ const theme = {
     accent: '#632536',
     accentHover: '#783545',
     white: '#ffffff',
+    red: '#ff3838',
     bgPrimary: '#faf8ef',
     bgSecondary: 'rgba(99, 37, 54, 0.08)',
     textPrimary: '#121212',
@@ -14,6 +15,7 @@ const theme = {
     heading: '2.2rem',
     body: '1.6rem',
     button: '1.4rem',
+    caption: '1.2rem',
   },
   fontWeight: {
     regular: 400,
