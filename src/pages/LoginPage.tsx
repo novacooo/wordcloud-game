@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import routes from 'common/routes';
 import styled from 'styled-components';
+import Button from 'components/Button';
 
 const StyledWrapper = styled.div`
   display: flex;
@@ -14,7 +15,7 @@ const StyledWrapper = styled.div`
 const Header = styled.h1`
   font-size: ${({ theme }) => theme.fontSize.headline};
   font-weight: ${({ theme }) => theme.fontWeight.bold};
-  color: ${({ theme }) => theme.fontColor.primary};
+  color: ${({ theme }) => theme.color.accent};
 `;
 
 const LoginPage = () => {
@@ -23,7 +24,7 @@ const LoginPage = () => {
   return (
     <StyledWrapper>
       <Header>Wordcloud game</Header>
-      <button onClick={() => navigate(routes.game)}>go to GamePage</button>
+      <Button onClick={() => navigate(routes.game)}>Start game</Button>
     </StyledWrapper>
   );
 };

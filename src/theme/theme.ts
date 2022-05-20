@@ -1,16 +1,18 @@
-import ITheme from 'types/ITheme';
-
-const theme: ITheme = {
+const theme = {
   bgPrimary: '#faf8ef',
   textPrimary: '#121212',
+  color: {
+    accent: '#632536',
+    accentHover: '#783545',
+    white: '#ffffff',
+    textPrimary: '#121212',
+    textSecondary: '#616161',
+  },
   fontFamily: 'Poppins',
   fontSize: {
     headline: '3.4rem',
     body: '1.6rem',
-  },
-  fontColor: {
-    primary: '#121212',
-    secondary: '#616161',
+    button: '1.4rem',
   },
   fontWeight: {
     regular: 400,

@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import routes from 'common/routes';
+import Button from 'components/Button';
 
 const GamePage = () => {
   const navigate = useNavigate();
@@ -7,9 +8,9 @@ const GamePage = () => {
   return (
     <div>
       <p>GamePage</p>
-      <button onClick={() => navigate(routes.summary)}>
+      <Button onClick={() => navigate(routes.summary)}>
         go to SummaryPage
-      </button>
+      </Button>
     </div>
   );
 };
