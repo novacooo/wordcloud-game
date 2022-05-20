@@ -1,10 +1,6 @@
 import styled from 'styled-components';
 
-interface ButtonProps {
-  children: string;
-}
-
-const Button = styled.button<ButtonProps>`
+const Button = styled.button`
   padding: 1.2rem 1.6rem;
   background-color: ${({ theme }) => theme.color.accent};
   border: none;

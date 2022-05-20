@@ -6,10 +6,9 @@ const SummaryPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div>
-      <p>SummaryPage</p>
+    <>
       <Button onClick={() => navigate(routes.login)}>go to LoginPage</Button>
-    </div>
+    </>
   );
 };
 

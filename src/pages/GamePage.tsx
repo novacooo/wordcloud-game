@@ -6,12 +6,11 @@ const GamePage = () => {
   const navigate = useNavigate();
 
   return (
-    <div>
-      <p>GamePage</p>
+    <>
       <Button onClick={() => navigate(routes.summary)}>
         go to SummaryPage
       </Button>
-    </div>
+    </>
   );
 };
 
