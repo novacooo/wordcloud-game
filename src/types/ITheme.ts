@@ -1,8 +1,18 @@
 interface ITheme {
   bgPrimary: string;
   textPrimary: string;
-  font: {
-    family: string;
+  fontFamily: string;
+  fontSize: {
+    headline: string;
+    body: string;
+  };
+  fontColor: {
+    primary: string;
+    secondary: string;
+  };
+  fontWeight: {
+    regular: number;
+    bold: number;
   };
 }
 
