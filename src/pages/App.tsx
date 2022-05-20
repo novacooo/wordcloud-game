@@ -1,5 +1,10 @@
 import { Helmet } from 'react-helmet';
+import { HashRouter, Route, Routes } from 'react-router-dom';
+import routes from 'common/routes';
 import MainTemplate from 'templates/MainTemplate';
+import LoginPage from './LoginPage';
+import GamePage from './GamePage';
+import SummaryPage from './SummaryPage';
 
 const App = () => (
   <>
@@ -12,9 +17,13 @@ const App = () => (
       />
     </Helmet>
     <MainTemplate>
-      <div>
-        <p>Wordcloud Game</p>
-      </div>
+      <HashRouter basename="/">
+        <Routes>
+          <Route path={routes.game} element={<GamePage />} />
+          <Route path={routes.login} element={<LoginPage />} />
+          <Route path={routes.summary} element={<SummaryPage />} />
+        </Routes>
+      </HashRouter>
     </MainTemplate>
   </>
 );
