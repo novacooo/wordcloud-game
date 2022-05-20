@@ -10,7 +10,8 @@ const theme = {
   },
   fontFamily: 'Poppins',
   fontSize: {
-    headline: '3.4rem',
+    header: '3.4rem',
+    heading: '2.2rem',
     body: '1.6rem',
     button: '1.4rem',
   },

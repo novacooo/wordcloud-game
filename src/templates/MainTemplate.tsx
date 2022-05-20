@@ -9,12 +9,10 @@ interface MainTemplateProps {
 
 const StyledWrapper = styled.div`
   display: flex;
-  justify-content: center;
   align-items: center;
   flex-direction: column;
-  gap: 3rem;
-  padding: 3rem;
-  height: 100%;
+  gap: 4rem;
+  padding: 12rem 3rem 3rem 3rem;
 `;
 
 const MainTemplate = ({ children }: MainTemplateProps) => {
