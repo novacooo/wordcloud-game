@@ -18,7 +18,7 @@ const GlobalStyle = createGlobalStyle`
     height: 100%;
     font-size: 1.6rem;
     font-family: ${({ theme }) => theme.fontFamily}, sans-serif;
-    background-color: ${({ theme }) => theme.bgPrimary};
+    background-color: ${({ theme }) => theme.color.bgPrimary};
 
     * {
       margin: 0;

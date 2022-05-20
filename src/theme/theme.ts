@@ -1,10 +1,10 @@
 const theme = {
-  bgPrimary: '#faf8ef',
-  textPrimary: '#121212',
   color: {
     accent: '#632536',
     accentHover: '#783545',
     white: '#ffffff',
+    bgPrimary: '#faf8ef',
+    bgSecondary: 'rgba(99, 37, 54, 0.08)',
     textPrimary: '#121212',
     textSecondary: '#616161',
   },
@@ -18,6 +18,7 @@ const theme = {
     regular: 400,
     bold: 600,
   },
+  borderRadius: '0.6rem',
 };
 
 export default theme;

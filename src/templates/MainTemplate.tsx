@@ -12,7 +12,8 @@ const StyledWrapper = styled.div`
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  gap: 2rem;
+  gap: 3rem;
+  padding: 3rem;
   height: 100%;
 `;
 
