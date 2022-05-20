@@ -30,9 +30,14 @@ const WordHeader = styled(Text)`
 `;
 
 const GamePage = () => {
-  const { isLoggedIn } = useAppContext();
+  const { isLoggedIn, setScore } = useAppContext();
   const navigate = useNavigate();
   const [isChecked, setIsChecked] = useState<boolean>(true);
+
+  const handleFinishGameButtonClick = () => {
+    setScore(10);
+    navigate(routes.summary);
+  };
 
   return (
     <>
@@ -45,7 +50,7 @@ const GamePage = () => {
       {!isChecked ? (
         <Button>Check answers</Button>
       ) : (
-        <Button onClick={() => navigate(routes.summary)}>Finish game</Button>
+        <Button onClick={handleFinishGameButtonClick}>Finish game</Button>
       )}
     </>
   );

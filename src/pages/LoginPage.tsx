@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import routes from 'common/routes';
 import Text from 'components/Text';
 import Button from 'components/Button';
@@ -28,7 +28,7 @@ const ErrorText = styled.p`
 `;
 
 const LoginPage = () => {
-  const { setIsLoggedIn, setNickname } = useAppContext();
+  const { isLoggedIn, setIsLoggedIn, setNickname } = useAppContext();
   const navigate = useNavigate();
   const [value, setValue] = useState('');
   const [isError, setIsError] = useState(false);
@@ -50,6 +50,7 @@ const LoginPage = () => {
 
   return (
     <>
+      {isLoggedIn && <Navigate to={routes.game} />}
       <Wrapper>
         <Text>Enter your nickname to start the game!</Text>
         <InputWrapper>
