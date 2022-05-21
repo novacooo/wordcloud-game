@@ -89,17 +89,17 @@ const GamePage = () => {
   const setPositionToWords = () => {
     if (boardRef.current === null) return;
 
+    const boardPadding = 30;
     const boardWidth = boardRef.current.clientWidth;
     const boardHeight = boardRef.current.clientHeight;
 
-    console.log(wordsRef);
-
     wordsRef.current.forEach((word) => {
-      console.log(word);
-      const randomLeft = Math.floor(Math.random() * boardWidth);
-      const randomBottom = Math.floor(Math.random() * boardHeight);
-      word.setLeft(randomLeft);
-      word.setBottom(randomBottom);
+      const maxLeft = boardWidth - word.width - boardPadding * 2;
+      const maxBottom = boardHeight - word.height - boardPadding * 2;
+      const randomLeft = Math.floor(Math.random() * maxLeft);
+      const randomBottom = Math.floor(Math.random() * maxBottom);
+      word.setLeft(randomLeft + boardPadding);
+      word.setBottom(randomBottom + boardPadding);
     });
   };
 
@@ -180,18 +180,15 @@ const GamePage = () => {
         });
       });
 
-      // TODO: Przerobić na debouncera i dać do nowego useEffect
       wordsRef.current = [];
-      setTimeout(() => setPositionToWords(), 100);
+      setTimeout(setPositionToWords, 1);
     }
   }, [questionSet]);
 
   return (
     <>
       {!isLoggedIn && <Navigate to={routes.login} />}
-      <Heading onClick={() => setPositionToWords()}>
-        Choose correct words!
-      </Heading>
+      <Heading>Choose correct words!</Heading>
       <BoardWrapper>
         <QuestionHeader>
           {questionSet ? questionSet.question : 'Picking question 🤔'}

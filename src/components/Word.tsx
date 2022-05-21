@@ -1,7 +1,9 @@
-import { forwardRef, useImperativeHandle, useState } from 'react';
+import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
 
 export interface WordHandle {
+  width: number;
+  height: number;
   setLeft: (x: number) => void;
   setBottom: (y: number) => void;
 }
@@ -21,8 +23,9 @@ interface StyledWordProps extends WordProps {
 
 const StyledWord = styled.span<StyledWordProps>`
   position: absolute;
-  left: ${({ left }) => `${left}px`};
-  bottom: ${({ bottom }) => `${bottom}px`};
+  visibility: ${({ left, bottom }) => (left && bottom ? 'visible' : 'hidden')};
+  left: ${({ left }) => (left ? `${left}px` : '0')};
+  bottom: ${({ bottom }) => (bottom ? `${bottom}px` : '0')};
   padding: 0.5rem;
   font-size: ${({ theme }) => theme.fontSize.body};
   font-weight: ${({ theme, selected, check }) =>
@@ -69,13 +72,18 @@ const Word = forwardRef<WordHandle, WordProps>(
     const [leftPosition, setLeftPosition] = useState<number>(0);
     const [bottomPosition, setBottomPosition] = useState<number>(0);
 
+    const styledWordRef = useRef<HTMLSpanElement>(null);
+
     useImperativeHandle(ref, () => ({
+      width: styledWordRef.current ? styledWordRef.current.clientWidth : 0,
+      height: styledWordRef.current ? styledWordRef.current?.clientHeight : 0,
       setLeft: (x) => setLeftPosition(x),
       setBottom: (y) => setBottomPosition(y),
     }));
 
     return (
       <StyledWord
+        ref={styledWordRef}
         left={leftPosition}
         bottom={bottomPosition}
         good={good}
