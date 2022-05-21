@@ -118,7 +118,7 @@ const GamePage = () => {
           {isLoading && <Spinner />}
           {questionSet &&
             questionSet.all_words.map((word, index) => (
-              <Word key={word} selected={index % 2 === 0}>
+              <Word key={word} check={index % 2 === 0} bad={index % 4 === 0}>
                 {word}
               </Word>
             ))}

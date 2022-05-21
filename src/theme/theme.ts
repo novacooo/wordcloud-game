@@ -4,6 +4,7 @@ const theme = {
     accentHover: '#783545',
     white: '#ffffff',
     red: '#ff3838',
+    green: '#31962a',
     bgPrimary: '#faf8ef',
     bgSecondary: 'rgba(99, 37, 54, 0.08)',
     textPrimary: '#121212',
