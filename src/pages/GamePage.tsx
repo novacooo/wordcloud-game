@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useState } from 'react';
+import { useEffect, useReducer, useRef, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import routes from 'common/routes';
 import Button from 'components/Button';
@@ -9,8 +9,15 @@ import { useAppContext } from 'contexts/appContext';
 import { ISet } from 'api/database';
 import { getQuestions } from 'api';
 import Spinner from 'components/Spinner';
-import Word from 'components/Word';
+import Word, { WordHandle } from 'components/Word';
 import { WordsActionKind, wordsReducer } from 'reducers/wordsReducer';
+
+interface IFilledArea {
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+}
 
 const BoardWrapper = styled.div`
   display: flex;
@@ -20,6 +27,7 @@ const BoardWrapper = styled.div`
 `;
 
 const Board = styled.div`
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -60,8 +68,12 @@ const GamePage = () => {
   const [isError, setIsError] = useState<boolean>(false);
   const [questionsData, setQuestionsData] = useState<ISet[]>();
   const [questionSet, setQuestionSet] = useState<ISet>();
+  const [filledAreas, setFilledAreas] = useState<IFilledArea[]>();
 
   const [wordsState, dispatchWords] = useReducer(wordsReducer, {});
+
+  const boardRef = useRef<HTMLDivElement>(null);
+  const wordsRef = useRef<WordHandle[]>([]);
 
   const doGetQuestions = async () => {
     try {
@@ -72,6 +84,23 @@ const GamePage = () => {
     }
 
     setIsLoading(false);
+  };
+
+  const setPositionToWords = () => {
+    if (boardRef.current === null) return;
+
+    const boardWidth = boardRef.current.clientWidth;
+    const boardHeight = boardRef.current.clientHeight;
+
+    console.log(wordsRef);
+
+    wordsRef.current.forEach((word) => {
+      console.log(word);
+      const randomLeft = Math.floor(Math.random() * boardWidth);
+      const randomBottom = Math.floor(Math.random() * boardHeight);
+      word.setLeft(randomLeft);
+      word.setBottom(randomBottom);
+    });
   };
 
   const handleWordClick = (name: string) => {
@@ -150,23 +179,32 @@ const GamePage = () => {
           name: word,
         });
       });
+
+      // TODO: Przerobić na debouncera i dać do nowego useEffect
+      wordsRef.current = [];
+      setTimeout(() => setPositionToWords(), 100);
     }
   }, [questionSet]);
 
   return (
     <>
       {!isLoggedIn && <Navigate to={routes.login} />}
-      <Heading>Choose correct words!</Heading>
+      <Heading onClick={() => setPositionToWords()}>
+        Choose correct words!
+      </Heading>
       <BoardWrapper>
         <QuestionHeader>
           {questionSet ? questionSet.question : 'Picking question 🤔'}
         </QuestionHeader>
-        <Board>
+        <Board ref={boardRef}>
           {isLoading && <Spinner />}
           {wordsState &&
-            Object.keys(wordsState).map((name) => (
+            Object.keys(wordsState).map((name, index) => (
               <Word
                 key={name}
+                ref={(element) => {
+                  wordsRef.current[index] = element as never;
+                }}
                 good={wordsState[name].good}
                 selected={wordsState[name].selected}
                 check={wordsState[name].checked}

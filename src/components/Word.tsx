@@ -1,14 +1,28 @@
+import { forwardRef, useImperativeHandle, useState } from 'react';
 import styled, { css } from 'styled-components';
+
+export interface WordHandle {
+  setLeft: (x: number) => void;
+  setBottom: (y: number) => void;
+}
 
 interface WordProps {
   children: string;
   good?: boolean;
   selected?: boolean;
   check?: boolean;
+  onClick?: () => void;
 }
 
-const Word = styled.span<WordProps>`
-  position: relative;
+interface StyledWordProps extends WordProps {
+  left: number;
+  bottom: number;
+}
+
+const StyledWord = styled.span<StyledWordProps>`
+  position: absolute;
+  left: ${({ left }) => `${left}px`};
+  bottom: ${({ bottom }) => `${bottom}px`};
   padding: 0.5rem;
   font-size: ${({ theme }) => theme.fontSize.body};
   font-weight: ${({ theme, selected, check }) =>
@@ -49,5 +63,30 @@ const Word = styled.span<WordProps>`
       }
     `}
 `;
+
+const Word = forwardRef<WordHandle, WordProps>(
+  ({ children, good, selected, check, onClick }, ref) => {
+    const [leftPosition, setLeftPosition] = useState<number>(0);
+    const [bottomPosition, setBottomPosition] = useState<number>(0);
+
+    useImperativeHandle(ref, () => ({
+      setLeft: (x) => setLeftPosition(x),
+      setBottom: (y) => setBottomPosition(y),
+    }));
+
+    return (
+      <StyledWord
+        left={leftPosition}
+        bottom={bottomPosition}
+        good={good}
+        selected={selected}
+        check={check}
+        onClick={onClick}
+      >
+        {children}
+      </StyledWord>
+    );
+  },
+);
 
 export default Word;
