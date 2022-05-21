@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import routes from 'common/routes';
 import Button from 'components/Button';
@@ -9,6 +9,7 @@ import { useAppContext } from 'contexts/appContext';
 import { ISet } from 'api/database';
 import { getQuestions } from 'api';
 import Spinner from 'components/Spinner';
+import Word from 'components/Word';
 
 const BoardWrapper = styled.div`
   display: flex;
@@ -85,6 +86,10 @@ const GamePage = () => {
     }
   };
 
+  const handleCheckAnswersButonClick = () => {
+    setIsChecked(true);
+  };
+
   const handleFinishGameButtonClick = () => {
     setScore(10);
     navigate(routes.summary);
@@ -112,7 +117,11 @@ const GamePage = () => {
         <Board>
           {isLoading && <Spinner />}
           {questionSet &&
-            questionSet.all_words.map((word) => <Text key={word}>{word}</Text>)}
+            questionSet.all_words.map((word, index) => (
+              <Word key={word} selected={index % 2 === 0}>
+                {word}
+              </Word>
+            ))}
           {isError && (
             <>
               <Text>Something went wrong 😞</Text>
@@ -128,7 +137,7 @@ const GamePage = () => {
           <Button secondary onClick={handlePickAnotherQuestionButtonClick}>
             Pick another question
           </Button>
-          <Button>Check answers</Button>
+          <Button onClick={handleCheckAnswersButonClick}>Check answers</Button>
         </ButtonsWrapper>
       ) : (
         <Button onClick={handleFinishGameButtonClick}>Finish game</Button>
