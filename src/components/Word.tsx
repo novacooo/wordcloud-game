@@ -37,14 +37,14 @@ const Word = styled.span<WordProps>`
   ${({ theme, check, good }) =>
     check &&
     css`
-      color: ${good ? theme.color.red : theme.color.green};
+      color: ${good ? theme.color.green : theme.color.red};
 
       &:hover {
-        color: ${good ? theme.color.red : theme.color.green};
+        color: ${good ? theme.color.green : theme.color.red};
       }
 
       &::before {
-        content: '${good ? 'Bad' : 'Good'}';
+        content: '${good ? 'Good' : 'Bad'}';
         visibility: visible;
       }
     `}

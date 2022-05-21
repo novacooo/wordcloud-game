@@ -75,7 +75,9 @@ const GamePage = () => {
   };
 
   const handleWordClick = (name: string) => {
-    dispatchWords({ type: WordsActionKind.TOGGLE_SELECT, name });
+    if (!isChecked) {
+      dispatchWords({ type: WordsActionKind.TOGGLE_SELECT, name });
+    }
   };
 
   const handleRefreshButtonClick = () => {
@@ -98,11 +100,27 @@ const GamePage = () => {
   };
 
   const handleCheckAnswersButonClick = () => {
+    Object.keys(wordsState).forEach((name) => {
+      if (wordsState[name].selected) {
+        dispatchWords({ type: WordsActionKind.SET_CHECKED, name });
+      }
+    });
     setIsChecked(true);
   };
 
   const handleFinishGameButtonClick = () => {
-    setScore(10);
+    let selectedGoodWords = 0;
+    let selectedBadWords = 0;
+    let notSelectedGoodWords = 0;
+
+    Object.keys(wordsState).forEach((name) => {
+      const word = wordsState[name];
+      if (word.selected && word.good) selectedGoodWords += 1;
+      if (word.selected && !word.good) selectedBadWords += 1;
+      if (!word.selected && word.good) notSelectedGoodWords += 1;
+    });
+
+    setScore(selectedGoodWords * 2 - (selectedBadWords + notSelectedGoodWords));
     navigate(routes.summary);
   };
 
@@ -138,9 +156,7 @@ const GamePage = () => {
   return (
     <>
       {!isLoggedIn && <Navigate to={routes.login} />}
-      <Heading onClick={() => console.log(wordsState)}>
-        Choose correct words!
-      </Heading>
+      <Heading>Choose correct words!</Heading>
       <BoardWrapper>
         <QuestionHeader>
           {questionSet ? questionSet.question : 'Picking question 🤔'}
