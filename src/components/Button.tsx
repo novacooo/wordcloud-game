@@ -2,10 +2,11 @@ import styled from 'styled-components';
 
 interface ButtonProps {
   secondary?: boolean;
+  small?: boolean;
 }
 
 const Button = styled.button<ButtonProps>`
-  padding: 1rem 1.6rem;
+  padding: ${({ small }) => (small ? '0.6rem 1rem' : '1rem 1.6rem')};
   background-color: ${({ theme, secondary }) =>
     secondary ? 'transparent' : theme.color.accent};
   border: 0.2rem solid ${({ theme }) => theme.color.accent};
