@@ -2,7 +2,7 @@ import styled, { css } from 'styled-components';
 
 interface WordProps {
   children: string;
-  bad?: boolean;
+  good?: boolean;
   selected?: boolean;
   check?: boolean;
 }
@@ -34,17 +34,17 @@ const Word = styled.span<WordProps>`
     font-size: ${({ theme }) => theme.fontSize.caption};
   }
 
-  ${({ theme, check, bad }) =>
+  ${({ theme, check, good }) =>
     check &&
     css`
-      color: ${bad ? theme.color.red : theme.color.green};
+      color: ${good ? theme.color.red : theme.color.green};
 
       &:hover {
-        color: ${bad ? theme.color.red : theme.color.green};
+        color: ${good ? theme.color.red : theme.color.green};
       }
 
       &::before {
-        content: '${bad ? 'Bad' : 'Good'}';
+        content: '${good ? 'Bad' : 'Good'}';
         visibility: visible;
       }
     `}

@@ -74,6 +74,10 @@ const GamePage = () => {
     setIsLoading(false);
   };
 
+  const handleWordClick = (name: string) => {
+    dispatchWords({ type: WordsActionKind.TOGGLE_SELECT, name });
+  };
+
   const handleRefreshButtonClick = () => {
     setIsLoading(true);
     setIsError(false);
@@ -88,7 +92,7 @@ const GamePage = () => {
         randomSet = getRandomQuestionSet(questionsData);
       } while (randomSet === questionSet);
 
-      dispatchWords({ type: WordsActionKind.REMOVE_ALL_WORDS });
+      dispatchWords({ type: WordsActionKind.REMOVE_ALL });
       setQuestionSet(randomSet);
     }
   };
@@ -117,14 +121,14 @@ const GamePage = () => {
     if (questionSet) {
       questionSet.all_words.forEach((word) => {
         dispatchWords({
-          type: WordsActionKind.ADD_WORD,
+          type: WordsActionKind.ADD,
           name: word,
         });
       });
 
       questionSet.good_words.forEach((word) => {
         dispatchWords({
-          type: WordsActionKind.SET_GOOD_WORD,
+          type: WordsActionKind.SET_GOOD,
           name: word,
         });
       });
@@ -143,10 +147,16 @@ const GamePage = () => {
         </QuestionHeader>
         <Board>
           {isLoading && <Spinner />}
-          {questionSet &&
-            questionSet.all_words.map((word, index) => (
-              <Word key={word} check={index % 2 === 0} bad={index % 4 === 0}>
-                {word}
+          {wordsState &&
+            Object.keys(wordsState).map((name) => (
+              <Word
+                key={name}
+                good={wordsState[name].good}
+                selected={wordsState[name].selected}
+                check={wordsState[name].checked}
+                onClick={() => handleWordClick(name)}
+              >
+                {name}
               </Word>
             ))}
           {isError && (

@@ -5,11 +5,11 @@ export interface IWord {
 }
 
 export enum WordsActionKind {
-  ADD_WORD = 'ADD_WORD',
-  SET_GOOD_WORD = 'SET_GOOD_WORD',
-  SELECT_WORD = 'SELECT_WORD',
-  CHECK_WORD = 'CHECK_WORD',
-  REMOVE_ALL_WORDS = 'REMOVE_ALL_WORDS',
+  ADD = 'ADD',
+  SET_GOOD = 'SET_GOOD',
+  TOGGLE_SELECT = 'TOGGLE_SELECT',
+  SET_CHECKED = 'SET_CHECKED',
+  REMOVE_ALL = 'REMOVE_ALL',
 }
 
 export interface WordsAction {
@@ -28,7 +28,7 @@ export const wordsReducer = (
   const { type, name } = action;
 
   switch (type) {
-    case WordsActionKind.ADD_WORD:
+    case WordsActionKind.ADD:
       if (!name) {
         return state;
       }
@@ -41,7 +41,7 @@ export const wordsReducer = (
         },
       };
 
-    case WordsActionKind.SET_GOOD_WORD:
+    case WordsActionKind.SET_GOOD:
       if (!name) {
         return state;
       }
@@ -53,7 +53,7 @@ export const wordsReducer = (
         },
       };
 
-    case WordsActionKind.SELECT_WORD:
+    case WordsActionKind.TOGGLE_SELECT:
       if (!name) {
         return state;
       }
@@ -61,11 +61,11 @@ export const wordsReducer = (
         ...state,
         [name]: {
           ...state[name],
-          selected: true,
+          selected: !state[name].selected,
         },
       };
 
-    case WordsActionKind.CHECK_WORD:
+    case WordsActionKind.SET_CHECKED:
       if (!name) {
         return state;
       }
@@ -77,7 +77,7 @@ export const wordsReducer = (
         },
       };
 
-    case WordsActionKind.REMOVE_ALL_WORDS:
+    case WordsActionKind.REMOVE_ALL:
       return {};
 
     default:
