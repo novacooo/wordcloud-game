@@ -5,14 +5,12 @@ export interface ISet {
 }
 
 interface IDatabase {
-  questions: {
-    [key: string]: ISet;
-  };
+  questions: ISet[];
 }
 
 const database: IDatabase = {
-  questions: {
-    animals: {
+  questions: [
+    {
       question: 'select animals',
       all_words: [
         'hole',
@@ -30,7 +28,7 @@ const database: IDatabase = {
       ],
       good_words: ['tiger', 'cow'],
     },
-    colors: {
+    {
       question: 'select colors',
       all_words: [
         'jeans',
@@ -48,7 +46,7 @@ const database: IDatabase = {
       ],
       good_words: ['red', 'blue', 'yellow', 'white', 'black'],
     },
-    vehicles: {
+    {
       question: 'select vehicles',
       all_words: [
         'belief',
@@ -63,7 +61,7 @@ const database: IDatabase = {
       ],
       good_words: ['car', 'bus', 'train'],
     },
-  },
+  ],
 };
 
 export default database;

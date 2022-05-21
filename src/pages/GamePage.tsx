@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import routes from 'common/routes';
 import Button from 'components/Button';
@@ -8,10 +8,7 @@ import Heading from 'components/Heading';
 import { useAppContext } from 'contexts/appContext';
 import { ISet } from 'api/database';
 import { getQuestions } from 'api';
-
-interface IQuestions {
-  [key: string]: ISet;
-}
+import Spinner from 'components/Spinner';
 
 const BoardWrapper = styled.div`
   display: flex;
@@ -33,7 +30,7 @@ const Board = styled.div`
   border-radius: ${({ theme }) => theme.borderRadius};
 `;
 
-const WordHeader = styled(Text)`
+const QuestionHeader = styled(Text)`
   font-size: 1.8rem;
   font-weight: ${({ theme }) => theme.fontWeight.bold};
   color: ${({ theme }) => theme.color.accent};
@@ -41,18 +38,28 @@ const WordHeader = styled(Text)`
   text-transform: uppercase;
 `;
 
+const ButtonsWrapper = styled.div`
+  display: flex;
+  gap: 1rem;
+`;
+
+const getRandomQuestionSet = (data: ISet[]): ISet => {
+  return data[Math.floor(Math.random() * data.length)];
+};
+
 const GamePage = () => {
   const { isLoggedIn, setScore } = useAppContext();
   const navigate = useNavigate();
-  const [isChecked, setIsChecked] = useState<boolean>(true);
+  const [isChecked, setIsChecked] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isError, setIsError] = useState<boolean>(false);
-  const [questions, setQuestions] = useState<IQuestions>();
+  const [questionsData, setQuestionsData] = useState<ISet[]>();
+  const [questionSet, setQuestionSet] = useState<ISet>();
 
   const doGetQuestions = async () => {
     try {
       const result = await getQuestions();
-      setQuestions(result as IQuestions);
+      setQuestionsData(result as ISet[]);
     } catch {
       setIsError(true);
     }
@@ -66,6 +73,18 @@ const GamePage = () => {
     doGetQuestions();
   };
 
+  const handlePickAnotherQuestionButtonClick = () => {
+    if (questionsData) {
+      let randomSet;
+
+      do {
+        randomSet = getRandomQuestionSet(questionsData);
+      } while (randomSet === questionSet);
+
+      setQuestionSet(randomSet);
+    }
+  };
+
   const handleFinishGameButtonClick = () => {
     setScore(10);
     navigate(routes.summary);
@@ -75,18 +94,25 @@ const GamePage = () => {
     doGetQuestions();
   }, []);
 
+  useEffect(() => {
+    if (questionsData) {
+      const randomSet = getRandomQuestionSet(questionsData);
+      setQuestionSet(randomSet);
+    }
+  }, [questionsData]);
+
   return (
     <>
       {!isLoggedIn && <Navigate to={routes.login} />}
       <Heading>Choose correct words!</Heading>
       <BoardWrapper>
-        <WordHeader>Select animals</WordHeader>
+        <QuestionHeader>
+          {questionSet ? questionSet.question : 'Picking question 🤔'}
+        </QuestionHeader>
         <Board>
-          {isLoading && <Text>Loading...</Text>}
-          {questions &&
-            Object.keys(questions).map((key) => (
-              <Text key={key}>{questions[key].question}</Text>
-            ))}
+          {isLoading && <Spinner />}
+          {questionSet &&
+            questionSet.all_words.map((word) => <Text key={word}>{word}</Text>)}
           {isError && (
             <>
               <Text>Something went wrong 😞</Text>
@@ -98,7 +124,12 @@ const GamePage = () => {
         </Board>
       </BoardWrapper>
       {!isChecked ? (
-        <Button>Check answers</Button>
+        <ButtonsWrapper>
+          <Button secondary onClick={handlePickAnotherQuestionButtonClick}>
+            Pick another question
+          </Button>
+          <Button>Check answers</Button>
+        </ButtonsWrapper>
       ) : (
         <Button onClick={handleFinishGameButtonClick}>Finish game</Button>
       )}
