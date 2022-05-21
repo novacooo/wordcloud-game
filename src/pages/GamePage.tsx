@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import routes from 'common/routes';
 import Button from 'components/Button';
@@ -10,6 +10,7 @@ import { ISet } from 'api/database';
 import { getQuestions } from 'api';
 import Spinner from 'components/Spinner';
 import Word from 'components/Word';
+import { WordsActionKind, wordsReducer } from 'reducers/wordsReducer';
 
 const BoardWrapper = styled.div`
   display: flex;
@@ -48,14 +49,19 @@ const getRandomQuestionSet = (data: ISet[]): ISet => {
   return data[Math.floor(Math.random() * data.length)];
 };
 
+// TODO: Rozdzielić question set na pytanie i slowa
 const GamePage = () => {
   const { isLoggedIn, setScore } = useAppContext();
+
   const navigate = useNavigate();
+
   const [isChecked, setIsChecked] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isError, setIsError] = useState<boolean>(false);
   const [questionsData, setQuestionsData] = useState<ISet[]>();
   const [questionSet, setQuestionSet] = useState<ISet>();
+
+  const [wordsState, dispatchWords] = useReducer(wordsReducer, {});
 
   const doGetQuestions = async () => {
     try {
@@ -82,6 +88,7 @@ const GamePage = () => {
         randomSet = getRandomQuestionSet(questionsData);
       } while (randomSet === questionSet);
 
+      dispatchWords({ type: WordsActionKind.REMOVE_ALL_WORDS });
       setQuestionSet(randomSet);
     }
   };
@@ -106,10 +113,30 @@ const GamePage = () => {
     }
   }, [questionsData]);
 
+  useEffect(() => {
+    if (questionSet) {
+      questionSet.all_words.forEach((word) => {
+        dispatchWords({
+          type: WordsActionKind.ADD_WORD,
+          name: word,
+        });
+      });
+
+      questionSet.good_words.forEach((word) => {
+        dispatchWords({
+          type: WordsActionKind.SET_GOOD_WORD,
+          name: word,
+        });
+      });
+    }
+  }, [questionSet]);
+
   return (
     <>
       {!isLoggedIn && <Navigate to={routes.login} />}
-      <Heading>Choose correct words!</Heading>
+      <Heading onClick={() => console.log(wordsState)}>
+        Choose correct words!
+      </Heading>
       <BoardWrapper>
         <QuestionHeader>
           {questionSet ? questionSet.question : 'Picking question 🤔'}
