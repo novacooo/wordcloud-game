@@ -2,6 +2,10 @@ export interface IWord {
   good: boolean;
   selected: boolean;
   checked: boolean;
+  left: number;
+  bottom: number;
+  width: number;
+  height: number;
 }
 
 export enum WordsActionKind {
@@ -10,11 +14,17 @@ export enum WordsActionKind {
   TOGGLE_SELECT = 'TOGGLE_SELECT',
   SET_CHECKED = 'SET_CHECKED',
   REMOVE_ALL = 'REMOVE_ALL',
+  CHANGE_POSITION = 'CHANGE_POSITION',
+  CHANGE_DIMENSIONS = 'CHANGE_DIMENSIONS',
 }
 
 export interface WordsAction {
   type: WordsActionKind;
   name?: string;
+  left?: number;
+  bottom?: number;
+  width?: number;
+  height?: number;
 }
 
 export interface IWordsState {
@@ -25,7 +35,7 @@ export const wordsReducer = (
   state: IWordsState,
   action: WordsAction,
 ): IWordsState => {
-  const { type, name } = action;
+  const { type, name, left, bottom, width, height } = action;
 
   switch (type) {
     case WordsActionKind.ADD:
@@ -38,6 +48,10 @@ export const wordsReducer = (
           good: false,
           selected: false,
           checked: false,
+          left: 0,
+          bottom: 0,
+          width: 0,
+          height: 0,
         },
       };
 
@@ -79,6 +93,32 @@ export const wordsReducer = (
 
     case WordsActionKind.REMOVE_ALL:
       return {};
+
+    case WordsActionKind.CHANGE_POSITION:
+      if (!name || !left || !bottom) {
+        return state;
+      }
+      return {
+        ...state,
+        [name]: {
+          ...state[name],
+          left,
+          bottom,
+        },
+      };
+
+    case WordsActionKind.CHANGE_DIMENSIONS:
+      if (!name || !width || !height) {
+        return state;
+      }
+      return {
+        ...state,
+        [name]: {
+          ...state[name],
+          width,
+          height,
+        },
+      };
 
     default:
       return state;
