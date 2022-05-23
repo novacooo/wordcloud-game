@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from 'react';
 
-interface IFilledArea {
+export interface IFilledArea {
   left: number;
   bottom: number;
   width: number;
@@ -8,6 +8,7 @@ interface IFilledArea {
 }
 
 interface IBoardContext {
+  padding: number;
   width: number;
   height: number;
   filledAreas: IFilledArea[];
@@ -22,6 +23,7 @@ interface BoardContextProviderProps {
 }
 
 const initialContext: IBoardContext = {
+  padding: 30,
   width: 0,
   height: 0,
   filledAreas: [],
@@ -53,6 +55,7 @@ export const BoardContextProvider = ({
   return (
     <BoardContext.Provider
       value={{
+        padding: 30,
         width,
         height,
         filledAreas,

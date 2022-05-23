@@ -9,15 +9,9 @@ import { useAppContext } from 'contexts/appContext';
 import { ISet } from 'api/database';
 import { getQuestions } from 'api';
 import Spinner from 'components/Spinner';
-import Word, { WordHandle } from 'components/Word';
+import Word from 'components/Word';
 import { WordsActionKind, wordsReducer } from 'reducers/wordsReducer';
-
-interface IFilledArea {
-  top: number;
-  left: number;
-  width: number;
-  height: number;
-}
+import { useBoardContext } from 'contexts/boardContext';
 
 const BoardWrapper = styled.div`
   display: flex;
@@ -57,9 +51,9 @@ const getRandomQuestionSet = (data: ISet[]): ISet => {
   return data[Math.floor(Math.random() * data.length)];
 };
 
-// TODO: Rozdzielić question set na pytanie i slowa
 const GamePage = () => {
   const { isLoggedIn, setScore } = useAppContext();
+  const { setWidth, setHeight, removeAllFilledAreas } = useBoardContext();
 
   const navigate = useNavigate();
 
@@ -68,12 +62,10 @@ const GamePage = () => {
   const [isError, setIsError] = useState<boolean>(false);
   const [questionsData, setQuestionsData] = useState<ISet[]>();
   const [questionSet, setQuestionSet] = useState<ISet>();
-  const [filledAreas, setFilledAreas] = useState<IFilledArea[]>();
 
   const [wordsState, dispatchWords] = useReducer(wordsReducer, {});
 
   const boardRef = useRef<HTMLDivElement>(null);
-  const wordsRef = useRef<WordHandle[]>([]);
 
   const doGetQuestions = async () => {
     try {
@@ -84,25 +76,6 @@ const GamePage = () => {
     }
 
     setIsLoading(false);
-  };
-
-  const setPositionToWords = () => {
-    if (boardRef.current === null) return;
-
-    const boardPadding = 30;
-    const boardWidth = boardRef.current.clientWidth;
-    const boardHeight = boardRef.current.clientHeight;
-
-    wordsRef.current.forEach((word) => {
-      const maxLeft = boardWidth - word.width - boardPadding * 2;
-      const maxBottom = boardHeight - word.height - boardPadding * 2;
-
-      const randomLeft = Math.floor(Math.random() * maxLeft);
-      const randomBottom = Math.floor(Math.random() * maxBottom);
-
-      word.setLeft(randomLeft + boardPadding);
-      word.setBottom(randomBottom + boardPadding);
-    });
   };
 
   const handleWordClick = (name: string) => {
@@ -125,6 +98,7 @@ const GamePage = () => {
         randomSet = getRandomQuestionSet(questionsData);
       } while (randomSet === questionSet);
 
+      removeAllFilledAreas();
       dispatchWords({ type: WordsActionKind.REMOVE_ALL });
       setQuestionSet(randomSet);
     }
@@ -151,6 +125,7 @@ const GamePage = () => {
       if (!word.selected && word.good) notSelectedGoodWords += 1;
     });
 
+    removeAllFilledAreas();
     setScore(selectedGoodWords * 2 - (selectedBadWords + notSelectedGoodWords));
     navigate(routes.summary);
   };
@@ -158,6 +133,13 @@ const GamePage = () => {
   useEffect(() => {
     doGetQuestions();
   }, []);
+
+  useEffect(() => {
+    if (boardRef.current) {
+      setWidth(boardRef.current.clientWidth);
+      setHeight(boardRef.current.clientHeight);
+    }
+  }, [setHeight, setWidth]);
 
   useEffect(() => {
     if (questionsData) {
@@ -181,9 +163,6 @@ const GamePage = () => {
           name: word,
         });
       });
-
-      wordsRef.current = [];
-      setTimeout(setPositionToWords, 1);
     }
   }, [questionSet]);
 
@@ -198,12 +177,9 @@ const GamePage = () => {
         <Board ref={boardRef}>
           {isLoading && <Spinner />}
           {wordsState &&
-            Object.keys(wordsState).map((name, index) => (
+            Object.keys(wordsState).map((name) => (
               <Word
                 key={name}
-                ref={(element) => {
-                  wordsRef.current[index] = element as never;
-                }}
                 good={wordsState[name].good}
                 selected={wordsState[name].selected}
                 check={wordsState[name].checked}
