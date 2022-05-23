@@ -96,8 +96,10 @@ const GamePage = () => {
     wordsRef.current.forEach((word) => {
       const maxLeft = boardWidth - word.width - boardPadding * 2;
       const maxBottom = boardHeight - word.height - boardPadding * 2;
+
       const randomLeft = Math.floor(Math.random() * maxLeft);
       const randomBottom = Math.floor(Math.random() * maxBottom);
+
       word.setLeft(randomLeft + boardPadding);
       word.setBottom(randomBottom + boardPadding);
     });
