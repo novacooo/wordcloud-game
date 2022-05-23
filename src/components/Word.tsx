@@ -1,26 +1,28 @@
-import { IFilledArea, useBoardContext } from 'contexts/boardContext';
-import { useEffect, useRef, useState } from 'react';
+import { forwardRef, useImperativeHandle, useRef } from 'react';
 import styled, { css } from 'styled-components';
+
+export interface WordHandle {
+  name: string;
+  width: number;
+  height: number;
+}
 
 interface WordProps {
   children: string;
+  left: number;
+  bottom: number;
   good?: boolean;
   selected?: boolean;
   check?: boolean;
   onClick?: () => void;
 }
 
-interface StyledWordProps extends WordProps {
-  left: number;
-  bottom: number;
-}
-
-const StyledWord = styled.span<StyledWordProps>`
+const StyledWord = styled.span<WordProps>`
   position: absolute;
   visibility: ${({ left, bottom }) => (left && bottom ? 'visible' : 'hidden')};
   left: ${({ left }) => (left ? `${left}px` : '0')};
   bottom: ${({ bottom }) => (bottom ? `${bottom}px` : '0')};
-  padding: 1.5rem;
+  padding: 0.5rem;
   font-size: ${({ theme }) => theme.fontSize.body};
   font-weight: ${({ theme, selected, check }) =>
     selected || check ? theme.fontWeight.bold : theme.fontWeight.regular};
@@ -38,7 +40,7 @@ const StyledWord = styled.span<StyledWordProps>`
   &::before {
     content: '';
     position: absolute;
-    top: 0;
+    bottom: 80%;
     left: 50%;
     transform: translateX(-50%);
     visibility: hidden;
@@ -61,65 +63,30 @@ const StyledWord = styled.span<StyledWordProps>`
     `}
 `;
 
-const Word = ({ children, good, selected, check, onClick }: WordProps) => {
-  const { padding, width, height, filledAreas, addFilledArea } =
-    useBoardContext();
+const Word = forwardRef<WordHandle, WordProps>(
+  ({ children, left, bottom, good, selected, check, onClick }, ref) => {
+    const styledWordRef = useRef<HTMLSpanElement>(null);
 
-  const [leftPosition, setLeftPosition] = useState<number>(0);
-  const [bottomPosition, setBottomPosition] = useState<number>(0);
-  const [area, setArea] = useState<IFilledArea>();
+    useImperativeHandle(ref, () => ({
+      name: children,
+      width: styledWordRef.current ? styledWordRef.current.clientWidth : 0,
+      height: styledWordRef.current ? styledWordRef.current?.clientHeight : 0,
+    }));
 
-  const styledWordRef = useRef<HTMLSpanElement>(null);
-
-  useEffect(() => {
-    console.log(`Board width: ${width}`);
-    console.log(`Board height: ${height}`);
-    console.log(filledAreas);
-  }, [filledAreas, height, width]);
-
-  useEffect(() => {
-    if (!styledWordRef.current) return;
-
-    const wordWidth = styledWordRef.current.clientWidth;
-    const wordHeight = styledWordRef.current.clientHeight;
-
-    const maxLeft = width - wordWidth - padding * 2;
-    const maxBottom = height - wordHeight - padding * 2;
-
-    const randomLeft = Math.floor(Math.random() * maxLeft) + padding;
-    const randomBottom = Math.floor(Math.random() * maxBottom) + padding;
-
-    const newArea: IFilledArea = {
-      left: randomLeft,
-      bottom: randomBottom,
-      width: wordWidth,
-      height: wordHeight,
-    };
-
-    setLeftPosition(randomLeft);
-    setBottomPosition(randomBottom);
-    setArea(newArea);
-  }, [height, padding, width]);
-
-  useEffect(() => {
-    if (!area) return;
-    addFilledArea(area);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [area]);
-
-  return (
-    <StyledWord
-      ref={styledWordRef}
-      left={leftPosition}
-      bottom={bottomPosition}
-      good={good}
-      selected={selected}
-      check={check}
-      onClick={onClick}
-    >
-      {children}
-    </StyledWord>
-  );
-};
+    return (
+      <StyledWord
+        ref={styledWordRef}
+        left={left}
+        bottom={bottom}
+        good={good}
+        selected={selected}
+        check={check}
+        onClick={onClick}
+      >
+        {children}
+      </StyledWord>
+    );
+  },
+);
 
 export default Word;

@@ -9,9 +9,15 @@ import { useAppContext } from 'contexts/appContext';
 import { ISet } from 'api/database';
 import { getQuestions } from 'api';
 import Spinner from 'components/Spinner';
-import Word from 'components/Word';
+import Word, { WordHandle } from 'components/Word';
 import { WordsActionKind, wordsReducer } from 'reducers/wordsReducer';
-import { useBoardContext } from 'contexts/boardContext';
+
+interface IFilledArea {
+  left: number;
+  bottom: number;
+  width: number;
+  height: number;
+}
 
 const BoardWrapper = styled.div`
   display: flex;
@@ -53,7 +59,6 @@ const getRandomQuestionSet = (data: ISet[]): ISet => {
 
 const GamePage = () => {
   const { isLoggedIn, setScore } = useAppContext();
-  const { setWidth, setHeight, removeAllFilledAreas } = useBoardContext();
 
   const navigate = useNavigate();
 
@@ -62,10 +67,72 @@ const GamePage = () => {
   const [isError, setIsError] = useState<boolean>(false);
   const [questionsData, setQuestionsData] = useState<ISet[]>();
   const [questionSet, setQuestionSet] = useState<ISet>();
+  const [boardWidth, setBoardWidth] = useState<number>(0);
+  const [boardHeight, setBoardHeight] = useState<number>(0);
+  const [filledAreas, setFilledAreas] = useState<IFilledArea[]>([]);
 
   const [wordsState, dispatchWords] = useReducer(wordsReducer, {});
 
   const boardRef = useRef<HTMLDivElement>(null);
+  const wordsRef = useRef<WordHandle[]>([]);
+
+  const checkIsAreaTaken = (newArea: IFilledArea) => {
+    let isTaken = false;
+
+    filledAreas.forEach((filledArea) => {
+      const newLeft = newArea.left;
+      const newRight = newArea.left + newArea.width;
+      const newBottom = newArea.bottom;
+      const newTop = newArea.bottom + newArea.height;
+
+      const filledLeft = filledArea.left;
+      const filledRight = filledArea.left + filledArea.width;
+      const filledBottom = filledArea.bottom;
+      const filledTop = filledArea.bottom + filledArea.height;
+
+      // Check bottom left corner
+      if (
+        filledLeft <= newLeft &&
+        filledRight >= newLeft &&
+        filledBottom <= newBottom &&
+        filledTop >= newBottom
+      ) {
+        isTaken = true;
+      }
+
+      // Check bottom right corner
+      if (
+        filledLeft <= newRight &&
+        filledRight >= newRight &&
+        filledBottom <= newBottom &&
+        filledTop >= newBottom
+      ) {
+        isTaken = true;
+      }
+
+      // Check top left corner
+      if (
+        filledLeft <= newLeft &&
+        filledRight >= newLeft &&
+        filledBottom <= newTop &&
+        filledTop >= newTop
+      ) {
+        isTaken = true;
+      }
+
+      // Check top right corner
+      if (
+        filledLeft <= newRight &&
+        filledRight >= newRight &&
+        filledBottom <= newTop &&
+        filledTop >= newTop
+      ) {
+        isTaken = true;
+      }
+    });
+
+    return isTaken;
+  };
 
   const doGetQuestions = async () => {
     try {
@@ -98,7 +165,7 @@ const GamePage = () => {
         randomSet = getRandomQuestionSet(questionsData);
       } while (randomSet === questionSet);
 
-      removeAllFilledAreas();
+      setFilledAreas([]);
       dispatchWords({ type: WordsActionKind.REMOVE_ALL });
       setQuestionSet(randomSet);
     }
@@ -125,7 +192,7 @@ const GamePage = () => {
       if (!word.selected && word.good) notSelectedGoodWords += 1;
     });
 
-    removeAllFilledAreas();
+    setFilledAreas([]);
     setScore(selectedGoodWords * 2 - (selectedBadWords + notSelectedGoodWords));
     navigate(routes.summary);
   };
@@ -136,10 +203,10 @@ const GamePage = () => {
 
   useEffect(() => {
     if (boardRef.current) {
-      setWidth(boardRef.current.clientWidth);
-      setHeight(boardRef.current.clientHeight);
+      setBoardWidth(boardRef.current.clientWidth);
+      setBoardHeight(boardRef.current.clientHeight);
     }
-  }, [setHeight, setWidth]);
+  }, [setBoardWidth, setBoardHeight]);
 
   useEffect(() => {
     if (questionsData) {
@@ -166,10 +233,47 @@ const GamePage = () => {
     }
   }, [questionSet]);
 
+  useEffect(() => {
+    if (questionSet) {
+      wordsRef.current = [];
+      setTimeout(() => {
+        wordsRef.current.forEach((word) => {
+          const padding = 30;
+
+          const wordWidth = word.width;
+          const wordHeight = word.height;
+
+          const maxLeft = boardWidth - wordWidth - padding * 2;
+          const maxBottom = boardHeight - wordHeight - padding * 2;
+
+          const randomLeft = Math.floor(Math.random() * maxLeft) + padding;
+          const randomBottom = Math.floor(Math.random() * maxBottom) + padding;
+
+          const newArea: IFilledArea = {
+            left: randomLeft,
+            bottom: randomBottom,
+            width: wordWidth,
+            height: wordHeight,
+          };
+
+          setFilledAreas((prevFilledAreas) => [...prevFilledAreas, newArea]);
+          dispatchWords({
+            type: WordsActionKind.CHANGE_POSITION,
+            name: word.name,
+            left: randomLeft,
+            bottom: randomBottom,
+          });
+        });
+      }, 10);
+    }
+  }, [boardHeight, boardWidth, questionSet]);
+
   return (
     <>
       {!isLoggedIn && <Navigate to={routes.login} />}
-      <Heading>Choose correct words!</Heading>
+      <Heading onClick={() => console.log(filledAreas)}>
+        Choose correct words!
+      </Heading>
       <BoardWrapper>
         <QuestionHeader>
           {questionSet ? questionSet.question : 'Picking question 🤔'}
@@ -177,9 +281,14 @@ const GamePage = () => {
         <Board ref={boardRef}>
           {isLoading && <Spinner />}
           {wordsState &&
-            Object.keys(wordsState).map((name) => (
+            Object.keys(wordsState).map((name, index) => (
               <Word
                 key={name}
+                ref={(element) => {
+                  wordsRef.current[index] = element as never;
+                }}
+                left={wordsState[name].left}
+                bottom={wordsState[name].bottom}
                 good={wordsState[name].good}
                 selected={wordsState[name].selected}
                 check={wordsState[name].checked}

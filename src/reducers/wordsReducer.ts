@@ -4,8 +4,6 @@ export interface IWord {
   checked: boolean;
   left: number;
   bottom: number;
-  width: number;
-  height: number;
 }
 
 export enum WordsActionKind {
@@ -15,7 +13,6 @@ export enum WordsActionKind {
   SET_CHECKED = 'SET_CHECKED',
   REMOVE_ALL = 'REMOVE_ALL',
   CHANGE_POSITION = 'CHANGE_POSITION',
-  CHANGE_DIMENSIONS = 'CHANGE_DIMENSIONS',
 }
 
 export interface WordsAction {
@@ -35,7 +32,7 @@ export const wordsReducer = (
   state: IWordsState,
   action: WordsAction,
 ): IWordsState => {
-  const { type, name, left, bottom, width, height } = action;
+  const { type, name, left, bottom } = action;
 
   switch (type) {
     case WordsActionKind.ADD:
@@ -50,8 +47,6 @@ export const wordsReducer = (
           checked: false,
           left: 0,
           bottom: 0,
-          width: 0,
-          height: 0,
         },
       };
 
@@ -104,19 +99,6 @@ export const wordsReducer = (
           ...state[name],
           left,
           bottom,
-        },
-      };
-
-    case WordsActionKind.CHANGE_DIMENSIONS:
-      if (!name || !width || !height) {
-        return state;
-      }
-      return {
-        ...state,
-        [name]: {
-          ...state[name],
-          width,
-          height,
         },
       };
 
