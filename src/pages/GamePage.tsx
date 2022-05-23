@@ -102,9 +102,9 @@ const GamePage = () => {
   };
 
   const handleWordClick = (name: string) => {
-    if (!isChecked) {
-      dispatchWords({ type: WordsActionKind.TOGGLE_SELECT, name });
-    }
+    if (isChecked) return;
+
+    dispatchWords({ type: WordsActionKind.TOGGLE_SELECT, name });
   };
 
   const handleRefreshButtonClick = () => {
@@ -114,16 +114,16 @@ const GamePage = () => {
   };
 
   const handlePickAnotherQuestionButtonClick = () => {
-    if (questionsData) {
-      let randomSet;
+    if (!questionsData) return;
 
-      do {
-        randomSet = getRandomQuestionSet(questionsData);
-      } while (randomSet === questionSet);
+    let randomSet;
 
-      dispatchWords({ type: WordsActionKind.REMOVE_ALL });
-      setQuestionSet(randomSet);
-    }
+    do {
+      randomSet = getRandomQuestionSet(questionsData);
+    } while (randomSet === questionSet);
+
+    dispatchWords({ type: WordsActionKind.REMOVE_ALL });
+    setQuestionSet(randomSet);
   };
 
   const handleCheckAnswersButonClick = () => {
@@ -156,10 +156,10 @@ const GamePage = () => {
   }, []);
 
   useEffect(() => {
-    if (boardRef.current) {
-      setBoardWidth(boardRef.current.clientWidth);
-      setBoardHeight(boardRef.current.clientHeight);
-    }
+    if (!boardRef.current) return;
+
+    setBoardWidth(boardRef.current.clientWidth);
+    setBoardHeight(boardRef.current.clientHeight);
   }, [setBoardWidth, setBoardHeight]);
 
   useEffect(() => {
@@ -170,67 +170,67 @@ const GamePage = () => {
   }, [questionsData]);
 
   useEffect(() => {
-    if (questionSet) {
-      questionSet.all_words.forEach((word) => {
-        dispatchWords({
-          type: WordsActionKind.ADD,
-          name: word,
-        });
-      });
+    if (!questionSet) return;
 
-      questionSet.good_words.forEach((word) => {
-        dispatchWords({
-          type: WordsActionKind.SET_GOOD,
-          name: word,
-        });
+    questionSet.all_words.forEach((word) => {
+      dispatchWords({
+        type: WordsActionKind.ADD,
+        name: word,
       });
-    }
+    });
+
+    questionSet.good_words.forEach((word) => {
+      dispatchWords({
+        type: WordsActionKind.SET_GOOD,
+        name: word,
+      });
+    });
   }, [questionSet]);
 
   useEffect(() => {
-    if (questionSet) {
-      wordsRef.current = [];
-      setTimeout(() => {
-        const filledAreas: IFilledArea[] = [];
-        const padding = 30;
+    if (!questionSet) return;
 
-        wordsRef.current.forEach((word) => {
-          const wordWidth = word.width;
-          const wordHeight = word.height;
+    wordsRef.current = [];
+    setTimeout(() => {
+      const filledAreas: IFilledArea[] = [];
+      const padding = 30;
 
-          const maxLeft = boardWidth - wordWidth - padding * 2;
-          const maxBottom = boardHeight - wordHeight - padding * 2;
+      wordsRef.current.forEach((word) => {
+        const wordWidth = word.width;
+        const wordHeight = word.height;
 
-          let randomLeft;
-          let randomBottom;
-          let newArea: IFilledArea;
-          let i = 0;
+        const maxLeft = boardWidth - wordWidth - padding * 2;
+        const maxBottom = boardHeight - wordHeight - padding * 2;
 
-          do {
-            randomLeft = Math.floor(Math.random() * maxLeft) + padding;
-            randomBottom = Math.floor(Math.random() * maxBottom) + padding;
+        let randomLeft;
+        let randomBottom;
+        let newArea: IFilledArea;
+        let i = 0;
 
-            newArea = {
-              left: randomLeft,
-              bottom: randomBottom,
-              width: wordWidth,
-              height: wordHeight,
-            };
+        do {
+          randomLeft = Math.floor(Math.random() * maxLeft) + padding;
+          randomBottom = Math.floor(Math.random() * maxBottom) + padding;
 
-            i += 1;
-          } while (checkIsAreaTaken(newArea, filledAreas) && i < 100);
-
-          filledAreas.push(newArea);
-
-          dispatchWords({
-            type: WordsActionKind.CHANGE_POSITION,
-            name: word.name,
+          newArea = {
             left: randomLeft,
             bottom: randomBottom,
-          });
+            width: wordWidth,
+            height: wordHeight,
+          };
+
+          i += 1;
+        } while (checkIsAreaTaken(newArea, filledAreas) && i < 100);
+
+        filledAreas.push(newArea);
+
+        dispatchWords({
+          type: WordsActionKind.CHANGE_POSITION,
+          name: word.name,
+          left: randomLeft,
+          bottom: randomBottom,
         });
-      }, 10);
-    }
+      });
+    }, 10);
   }, [boardHeight, boardWidth, questionSet]);
 
   return (
