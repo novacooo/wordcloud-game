@@ -1,0 +1,10 @@
+{
+  "files": {
+    "main.js": "/wordcloud-game/static/js/main.5279561c.js",
+    "index.html": "/wordcloud-game/index.html",
+    "main.5279561c.js.map": "/wordcloud-game/static/js/main.5279561c.js.map"
+  },
+  "entrypoints": [
+    "static/js/main.5279561c.js"
+  ]
+}
