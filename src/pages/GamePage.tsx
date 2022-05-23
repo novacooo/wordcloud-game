@@ -34,8 +34,8 @@ const Board = styled.div`
   align-items: center;
   gap: 1.5rem;
   padding: 3rem;
-  width: 60rem;
-  min-height: 40rem;
+  width: 65rem;
+  min-height: 45rem;
   background-color: ${({ theme }) => theme.color.bgSecondary};
   border-radius: ${({ theme }) => theme.borderRadius};
 `;
@@ -57,6 +57,21 @@ const getRandomQuestionSet = (data: ISet[]): ISet => {
   return data[Math.floor(Math.random() * data.length)];
 };
 
+const checkIsAreaTaken = (newArea: IFilledArea, filledAreas: IFilledArea[]) => {
+  for (let i = 0; i < filledAreas.length; i += 1) {
+    const checkArea = filledAreas[i];
+    if (
+      newArea.left > checkArea.left - newArea.width &&
+      newArea.left < checkArea.left + newArea.width &&
+      newArea.bottom > checkArea.bottom - newArea.height &&
+      newArea.bottom < checkArea.bottom + newArea.height
+    ) {
+      return true;
+    }
+  }
+  return false;
+};
+
 const GamePage = () => {
   const { isLoggedIn, setScore } = useAppContext();
 
@@ -69,70 +84,11 @@ const GamePage = () => {
   const [questionSet, setQuestionSet] = useState<ISet>();
   const [boardWidth, setBoardWidth] = useState<number>(0);
   const [boardHeight, setBoardHeight] = useState<number>(0);
-  const [filledAreas, setFilledAreas] = useState<IFilledArea[]>([]);
 
   const [wordsState, dispatchWords] = useReducer(wordsReducer, {});
 
   const boardRef = useRef<HTMLDivElement>(null);
   const wordsRef = useRef<WordHandle[]>([]);
-
-  const checkIsAreaTaken = (newArea: IFilledArea) => {
-    let isTaken = false;
-
-    filledAreas.forEach((filledArea) => {
-      const newLeft = newArea.left;
-      const newRight = newArea.left + newArea.width;
-      const newBottom = newArea.bottom;
-      const newTop = newArea.bottom + newArea.height;
-
-      const filledLeft = filledArea.left;
-      const filledRight = filledArea.left + filledArea.width;
-      const filledBottom = filledArea.bottom;
-      const filledTop = filledArea.bottom + filledArea.height;
-
-      // Check bottom left corner
-      if (
-        filledLeft <= newLeft &&
-        filledRight >= newLeft &&
-        filledBottom <= newBottom &&
-        filledTop >= newBottom
-      ) {
-        isTaken = true;
-      }
-
-      // Check bottom right corner
-      if (
-        filledLeft <= newRight &&
-        filledRight >= newRight &&
-        filledBottom <= newBottom &&
-        filledTop >= newBottom
-      ) {
-        isTaken = true;
-      }
-
-      // Check top left corner
-      if (
-        filledLeft <= newLeft &&
-        filledRight >= newLeft &&
-        filledBottom <= newTop &&
-        filledTop >= newTop
-      ) {
-        isTaken = true;
-      }
-
-      // Check top right corner
-      if (
-        filledLeft <= newRight &&
-        filledRight >= newRight &&
-        filledBottom <= newTop &&
-        filledTop >= newTop
-      ) {
-        isTaken = true;
-      }
-    });
-
-    return isTaken;
-  };
 
   const doGetQuestions = async () => {
     try {
@@ -165,7 +121,6 @@ const GamePage = () => {
         randomSet = getRandomQuestionSet(questionsData);
       } while (randomSet === questionSet);
 
-      setFilledAreas([]);
       dispatchWords({ type: WordsActionKind.REMOVE_ALL });
       setQuestionSet(randomSet);
     }
@@ -192,7 +147,6 @@ const GamePage = () => {
       if (!word.selected && word.good) notSelectedGoodWords += 1;
     });
 
-    setFilledAreas([]);
     setScore(selectedGoodWords * 2 - (selectedBadWords + notSelectedGoodWords));
     navigate(routes.summary);
   };
@@ -237,26 +191,37 @@ const GamePage = () => {
     if (questionSet) {
       wordsRef.current = [];
       setTimeout(() => {
-        wordsRef.current.forEach((word) => {
-          const padding = 30;
+        const filledAreas: IFilledArea[] = [];
+        const padding = 30;
 
+        wordsRef.current.forEach((word) => {
           const wordWidth = word.width;
           const wordHeight = word.height;
 
           const maxLeft = boardWidth - wordWidth - padding * 2;
           const maxBottom = boardHeight - wordHeight - padding * 2;
 
-          const randomLeft = Math.floor(Math.random() * maxLeft) + padding;
-          const randomBottom = Math.floor(Math.random() * maxBottom) + padding;
+          let randomLeft;
+          let randomBottom;
+          let newArea: IFilledArea;
+          let i = 0;
 
-          const newArea: IFilledArea = {
-            left: randomLeft,
-            bottom: randomBottom,
-            width: wordWidth,
-            height: wordHeight,
-          };
+          do {
+            randomLeft = Math.floor(Math.random() * maxLeft) + padding;
+            randomBottom = Math.floor(Math.random() * maxBottom) + padding;
 
-          setFilledAreas((prevFilledAreas) => [...prevFilledAreas, newArea]);
+            newArea = {
+              left: randomLeft,
+              bottom: randomBottom,
+              width: wordWidth,
+              height: wordHeight,
+            };
+
+            i += 1;
+          } while (checkIsAreaTaken(newArea, filledAreas) && i < 100);
+
+          filledAreas.push(newArea);
+
           dispatchWords({
             type: WordsActionKind.CHANGE_POSITION,
             name: word.name,
@@ -271,9 +236,7 @@ const GamePage = () => {
   return (
     <>
       {!isLoggedIn && <Navigate to={routes.login} />}
-      <Heading onClick={() => console.log(filledAreas)}>
-        Choose correct words!
-      </Heading>
+      <Heading>Choose correct words!</Heading>
       <BoardWrapper>
         <QuestionHeader>
           {questionSet ? questionSet.question : 'Picking question 🤔'}

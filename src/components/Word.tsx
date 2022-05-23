@@ -22,7 +22,7 @@ const StyledWord = styled.span<WordProps>`
   visibility: ${({ left, bottom }) => (left && bottom ? 'visible' : 'hidden')};
   left: ${({ left }) => (left ? `${left}px` : '0')};
   bottom: ${({ bottom }) => (bottom ? `${bottom}px` : '0')};
-  padding: 0.5rem;
+  padding: 1.5rem;
   font-size: ${({ theme }) => theme.fontSize.body};
   font-weight: ${({ theme, selected, check }) =>
     selected || check ? theme.fontWeight.bold : theme.fontWeight.regular};
@@ -40,7 +40,7 @@ const StyledWord = styled.span<WordProps>`
   &::before {
     content: '';
     position: absolute;
-    bottom: 80%;
+    top: 0;
     left: 50%;
     transform: translateX(-50%);
     visibility: hidden;

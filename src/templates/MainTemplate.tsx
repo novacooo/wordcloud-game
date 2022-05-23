@@ -3,7 +3,6 @@ import GlobalStyle from 'theme/GlobalStyle';
 import theme from 'theme/theme';
 import Header from 'components/Header';
 import { AppContextProvider } from 'contexts/appContext';
-import { BoardContextProvider } from 'contexts/boardContext';
 
 interface MainTemplateProps {
   children: React.ReactNode;
@@ -14,21 +13,19 @@ const StyledWrapper = styled.div`
   align-items: center;
   flex-direction: column;
   gap: 4rem;
-  padding: 12rem 3rem 3rem 3rem;
+  padding: 6rem 3rem 3rem 3rem;
 `;
 
 const MainTemplate = ({ children }: MainTemplateProps) => {
   return (
     <AppContextProvider>
-      <BoardContextProvider>
-        <ThemeProvider theme={theme}>
-          <GlobalStyle />
-          <StyledWrapper>
-            <Header>Wordcloud game</Header>
-            {children}
-          </StyledWrapper>
-        </ThemeProvider>
-      </BoardContextProvider>
+      <ThemeProvider theme={theme}>
+        <GlobalStyle />
+        <StyledWrapper>
+          <Header>Wordcloud game</Header>
+          {children}
+        </StyledWrapper>
+      </ThemeProvider>
     </AppContextProvider>
   );
 };
