@@ -24,6 +24,7 @@ const BoardWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 2rem;
+  width: 100%;
 `;
 
 const Board = styled.div`
@@ -34,8 +35,9 @@ const Board = styled.div`
   align-items: center;
   gap: 1.5rem;
   padding: 3rem;
-  width: 65rem;
-  min-height: 45rem;
+  width: 100%;
+  max-width: 65rem;
+  height: 45rem;
   background-color: ${({ theme }) => theme.color.bgSecondary};
   border-radius: ${({ theme }) => theme.borderRadius};
 `;

@@ -14,6 +14,11 @@ const StyledWrapper = styled.div`
   flex-direction: column;
   gap: 4rem;
   padding: 6rem 3rem 3rem 3rem;
+
+  @media (max-width: 768px) {
+    padding: 3rem;
+    gap: 3rem;
+  }
 `;
 
 const MainTemplate = ({ children }: MainTemplateProps) => {
